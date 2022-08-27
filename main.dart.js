@@ -59397,7 +59397,7 @@ A.Cu.prototype={
 F(a,b){var s,r=this,q=null,p="assets/images/handshake.png",o="https://drive.google.com/uc?export=download&id=1-NAhtkl2bzk1JG1xoKFUmrlIbm4XzRq_",n=r.c.d,m=A.ba("My Skills",n?A.aV(q,q,q,20*($.L.q()/3)/100,q,q,q):A.aV(q,q,q,10*($.L.q()/3)/100,q,q,q),q,q),l=A.b1(q,2*$.a4.q()/100,q),k=r.d
 k=n?A.cf(k,B.q,B.t):A.dg(k,B.q,B.t,B.L)
 s=t.p
-k=A.cf(A.a([m,l,k,A.b1(q,6*$.a4.q()/100,q)],s),B.bd,B.t)
+k=A.cf(A.a([m,l,k,A.b1(q,4*$.a4.q()/100,q)],s),B.bd,B.t)
 m=A.ba("In need of these skills?",n?A.aV(q,q,q,20*($.L.q()/3)/100,q,q,q):A.aV(q,q,q,10*($.L.q()/3)/100,q,q,q),q,q)
 l=A.b1(q,2*$.a4.q()/100,q)
 return A.cf(A.a([k,A.cf(A.a([m,l,n?A.cf(A.a([new A.j1(p,"Hire me",new A.Ry(r),!0,q),A.b1(q,$.a4.q()/100,q),new A.kq(new A.Rz(r),A.is(o,0,q),B.ba,q)],s),B.q,B.t):A.dg(A.a([new A.j1(p,"Hire me",new A.RA(r),!1,q),A.b1(q,q,2*$.L.q()/100),new A.kq(new A.RB(r),A.is(o,0,q),B.ba,q)],s),B.q,B.cv,B.L)],s),B.q,B.t)],s),B.q,B.t)}}
