@@ -26,6 +26,7 @@ const pointers = new Map();
 const collected = new Set();
 const visited = new Set();
 const routeButtons = Array.from(document.querySelectorAll("[data-route]"));
+const touchButtons = Array.from(document.querySelectorAll(".touch button"));
 const speedText = document.createTextNode("00 ");
 $("speed").firstChild.replaceWith(speedText);
 let width = 0;
@@ -45,6 +46,7 @@ let turnProgress = 0;
 let engineElapsed = 0;
 let clock = 0;
 let lastFrame;
+let animationFrame;
 let state = "intro";
 let previousSpeed = -1;
 let cruise = false;
@@ -414,6 +416,11 @@ function showArrival(checkpoint) {
   $("arrival-detail").textContent = checkpoint.detail;
   $("arrival-link").href = "#" + checkpoint.anchor;
   $("arrival-link").textContent = checkpoint.link ?? "See the project";
+  const sourceLink = $(checkpoint.anchor).querySelector(".repo-actions a");
+  const code = $("arrival-code");
+  code.hidden = !sourceLink;
+  if (sourceLink) code.href = sourceLink.href;
+  else code.removeAttribute("href");
   $("arrival").hidden = false;
 }
 
@@ -432,6 +439,16 @@ function setState(next) {
   state = next;
   drive.dataset.state = next;
   $("cruise").disabled = !canDrive();
+  $("open-map").disabled = next === "junction";
+}
+
+function focusDrive() {
+  drive.focus({ preventScroll: true });
+  drive.scrollIntoView({ block: "start", behavior: "instant" });
+}
+
+function focusStop(id) {
+  if (drive.contains(document.activeElement) && routeInView()) $(id).focus({ preventScroll: true });
 }
 
 function showJunction() {
@@ -445,7 +462,7 @@ function showJunction() {
   $("hud-next").textContent = "CROSSROADS";
   setState("junction");
   $("junction").hidden = false;
-  $("junction-title").focus({ preventScroll: true });
+  focusStop("junction-title");
   updateHud();
 }
 
@@ -465,11 +482,13 @@ function arrive() {
   speed = 0;
   setState("parked");
   visited.add(routeKey);
-  routeButtons.find(button => button.dataset.route === routeKey).classList.add("visited");
+  const marker = routeButtons.find(button => button.dataset.route === routeKey);
+  marker.classList.add("visited");
+  marker.querySelector(".route-visited").hidden = false;
   $("route-text").textContent = visited.size + " / " + Object.keys(routes).length + " stops visited";
   $("hud-next").textContent = "PARKED / " + routes[routeKey].label;
   showArrival(routes[routeKey]);
-  $("arrival-title").focus({ preventScroll: true });
+  focusStop("arrival-title");
 }
 
 function update(elapsed) {
@@ -493,8 +512,8 @@ function update(elapsed) {
     const direction = Number(input.has("right")) - Number(input.has("left"));
     const braking = input.has("brake");
     if (braking && cruise) setCruise(false);
-    const going = input.has("go") || cruise;
-    const boosting = going && input.has("boost");
+    const boosting = input.has("boost") && !braking;
+    const going = input.has("go") || cruise || boosting;
     const end = state === "approach" ? approachEnd : junctionAt + routes[routeKey].length;
     const remaining = end - before;
     steer += (direction - steer) * Math.min(1, elapsed * 8);
@@ -523,7 +542,7 @@ function update(elapsed) {
   if (engineElapsed >= .058) {
     engineElapsed = 0;
     drive.dispatchEvent(new CustomEvent("night-shift:engine", { detail: {
-      speed, throttle: canDrive() && (cruise || input.has("go")), boost: input.has("boost"),
+      speed, throttle: canDrive() && !input.has("brake") && (cruise || input.has("go") || input.has("boost")), boost: input.has("boost"),
       running: state !== "intro" && state !== "parked"
     } }));
   }
@@ -534,17 +553,15 @@ function frame(now) {
   const elapsed = lastFrame === undefined ? 0 : Math.min((now - lastFrame) / 1000, .2);
   clock = reducedMotion.matches ? 0 : now / 1000;
   lastFrame = now;
-  if (routeVisible) {
-    update(elapsed);
-    draw();
-  }
-  requestAnimationFrame(frame);
+  update(elapsed);
+  draw();
+  animationFrame = requestAnimationFrame(frame);
 }
 
 function clearInput() {
   input.clear();
   pointers.clear();
-  document.querySelectorAll(".touch button").forEach(button => { delete button.dataset.driving; });
+  touchButtons.forEach(button => { delete button.dataset.driving; });
 }
 
 function setCruise(enabled) {
@@ -558,7 +575,10 @@ function start() {
   routeKey = null;
   visited.clear();
   collected.clear();
-  routeButtons.forEach(button => button.classList.remove("visited"));
+  routeButtons.forEach(button => {
+    button.classList.remove("visited");
+    button.querySelector(".route-visited").hidden = true;
+  });
   $("junction").hidden = true;
   $("arrival").hidden = true;
   $("route-text").textContent = "0 / " + Object.keys(routes).length + " stops visited";
@@ -567,8 +587,7 @@ function start() {
   setState("approach");
   setCruise(true);
   updateHud();
-  drive.focus({ preventScroll: true });
-  window.scrollTo({ top: window.scrollY + drive.getBoundingClientRect().top, behavior: "instant" });
+  focusDrive();
 }
 
 const keys = {
@@ -590,18 +609,19 @@ function releaseKeys() {
 }
 
 function routeInView() {
-  const bounds = drive.getBoundingClientRect();
-  return bounds.bottom > window.innerHeight * .54 && bounds.top < window.innerHeight * .45;
+  return routeVisible && !document.hidden;
 }
 
 async function loadRoadRenderer() {
   const surface = $("scene-3d");
   const context = surface.getContext("webgl2", { alpha: true, antialias: true });
   if (!context) return;
-  surface.addEventListener("webglcontextlost", () => {
+  surface.addEventListener("webglcontextlost", event => {
+    event.preventDefault();
     roadRenderer = undefined;
     delete drive.dataset.renderer;
-  });
+    surface.addEventListener("webglcontextrestored", loadRoadRenderer, {once:true});
+  }, {once:true});
   try {
     const { createRoadRenderer } = await import("./scene-3d.js?v=3");
     if (context.isContextLost()) return;
@@ -616,29 +636,43 @@ async function loadRoadRenderer() {
   }
 }
 
+function syncAnimation() {
+  if (routeInView()) {
+    if (animationFrame === undefined) animationFrame = requestAnimationFrame(frame);
+  } else if (animationFrame !== undefined) {
+    cancelAnimationFrame(animationFrame);
+    animationFrame = undefined;
+    lastFrame = undefined;
+    releaseKeys();
+    drive.dispatchEvent(new CustomEvent("night-shift:engine", { detail: { running: false } }));
+  }
+}
+
 if (ctx) {
   resize();
   loadRoadRenderer().catch(() => {});
   new ResizeObserver(resize).observe(drive);
   new IntersectionObserver(([entry]) => {
-    routeVisible = entry.isIntersecting;
-    if (!routeVisible) {
-      releaseKeys();
-      drive.dispatchEvent(new CustomEvent("night-shift:engine", { detail: { running: false } }));
-    }
-  }).observe(drive);
+    routeVisible = entry.isIntersecting && entry.intersectionRatio >= .45;
+    syncAnimation();
+  }, {threshold: .45}).observe(drive);
   $("start").addEventListener("click", start);
+  $("jump-to-junction").hidden = false;
+  $("jump-to-junction").addEventListener("click", () => {
+    focusDrive();
+    showJunction();
+  });
+  $("open-map").addEventListener("click", showJunction);
   $("back-to-junction").addEventListener("click", showJunction);
   routeButtons.forEach(button => button.addEventListener("click", () => chooseRoute(button.dataset.route)));
   $("cruise").addEventListener("click", () => {
     if (canDrive()) setCruise(!cruise);
   });
-  $("restart").addEventListener("click", () => {
-    releaseKeys();
-    start();
-  });
+  $("restart").addEventListener("click", start);
   window.addEventListener("keydown", event => {
     if (!routeInView() || event.ctrlKey || event.altKey || event.metaKey || $("sample").open) return;
+    if (event.target !== document.body && !drive.contains(event.target)) return;
+    if (event.target instanceof HTMLElement && (event.target.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(event.target.tagName))) return;
     if (state === "intro" && event.code === "Enter" && (event.target === document.body || event.target === drive)) {
       event.preventDefault();
       start();
@@ -650,7 +684,7 @@ if (ctx) {
       start();
       return;
     }
-    if (state === "parked" && event.code === "Escape") {
+    if (state !== "intro" && state !== "junction" && event.code === "Escape") {
       event.preventDefault();
       showJunction();
       return;
@@ -669,10 +703,11 @@ if (ctx) {
     if (heldKeys.delete(event.code)) resolveInput();
   });
   window.addEventListener("blur", releaseKeys);
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) releaseKeys();
+  drive.addEventListener("focusout", event => {
+    if (!drive.contains(event.relatedTarget)) releaseKeys();
   });
-  document.querySelectorAll(".touch button").forEach(button => {
+  document.addEventListener("visibilitychange", syncAnimation);
+  touchButtons.forEach(button => {
     button.addEventListener("pointerdown", event => {
       if (!canDrive()) return;
       event.preventDefault();
@@ -690,7 +725,7 @@ if (ctx) {
     button.addEventListener("pointercancel", release);
     button.addEventListener("lostpointercapture", release);
   });
-  requestAnimationFrame(frame);
+  syncAnimation();
 } else {
   $("start").disabled = true;
   $("start").textContent = "Driving view unavailable";
