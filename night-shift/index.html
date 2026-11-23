@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#100e1e">
+  <meta name="description" content="Drive a short night route through the engineering portfolio of Satya Srivatsav, a .NET and Angular engineer in Hyderabad.">
+  <title>Night Shift · Satya Srivatsav</title>
+  <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="trace.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#work">Skip to engineering work</a>
+  <header class="top">
+    <a class="brand" href="#drive"><span class="brand-mark" aria-hidden="true"></span>Satya Srivatsav</a>
+    <nav aria-label="Main navigation"><a href="#drive">Drive</a><a href="#work">Work</a><a href="#contact">Contact</a></nav>
+    <a class="button resume" href="assets/Satya_Srivatsav_Resume.pdf" target="_blank" rel="noopener">Résumé</a>
+  </header>
+
+  <main>
+    <section class="drive" id="drive" tabindex="-1" aria-labelledby="drive-title" data-state="intro">
+      <canvas id="scene" aria-hidden="true"></canvas>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="intro" id="intro">
+        <p class="eyebrow"><span></span> HYDERABAD AFTER DARK</p>
+        <h1 id="drive-title">Night<br><em>Shift.</em></h1>
+        <p class="tagline">Take a drive through the systems I build and the ideas I bring to them.</p>
+        <div class="intro-actions"><button id="start" class="button primary" type="button">Start the engine <kbd>Enter</kbd></button><a href="#work" class="plain-link">View projects</a></div>
+        <p class="accent">G Satya Srivatsav <span> / </span> .NET &amp; Angular engineer</p>
+      </div>
+      <div class="hud" aria-label="Route status">
+        <div class="hud-heading"><span><b>NIGHT SHIFT</b><small>ENGINEERING PORTFOLIO</small></span><div class="hud-actions"><button type="button" id="cruise" class="button" aria-pressed="false" title="Hold a steady speed while you steer">Cruise</button><button type="button" id="restart" class="button" title="Restart the drive (R)">Restart</button></div></div>
+        <div class="route-line" aria-hidden="true"><div id="route-fill"></div><i style="--at:14%"></i><i style="--at:36%"></i><i style="--at:60%"></i><i style="--at:83%"></i></div>
+        <div class="hud-data"><span><span id="route-text">0 / 4 checkpoints</span><small id="spark-count">0/8 sparks</small></span><span id="speed">00 <small>KM/H</small></span></div>
+      </div>
+      <aside class="arrival" id="arrival" aria-live="polite" aria-atomic="true" hidden>
+        <p id="arrival-kicker" class="eyebrow"></p>
+        <h2 id="arrival-title"></h2>
+        <p id="arrival-detail"></p>
+        <a id="arrival-link" href="#work" class="plain-link">See the project</a>
+      </aside>
+      <p id="guide" class="guide"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>or arrow keys to drive</span><kbd>⇧</kbd><span>Boost</span></p>
+      <div class="touch" aria-label="Touch driving controls">
+        <div><button type="button" data-drive="left" aria-label="Steer left">‹</button><button type="button" data-drive="right" aria-label="Steer right">›</button></div>
+        <div><button type="button" data-drive="brake" aria-label="Brake">−</button><button type="button" data-drive="go" aria-label="Accelerate">↑</button></div>
+      </div>
+      <noscript><p class="script-note">The drive needs JavaScript. <a href="#work">You can still view the portfolio below.</a></p></noscript>
+    </section>
+
+    <section class="work shell" id="work" aria-labelledby="work-title">
+      <div class="section-head"><div><p class="eyebrow">WORK &amp; PROJECTS</p><h2 id="work-title">What’s under the hood.</h2></div><p>I build enterprise software from database to UI, with a focus on keeping it fast and dependable as the workload grows.</p></div>
+      <div class="projects">
+        <article id="performance" class="project"><div class="project-meta"><span>WORKSOFT IMPACT</span><span>C# · Angular</span></div><h3>Performance at scale</h3><p class="stat">5,000+ <small>rows in responsive grids</small></p><p>I moved heavy logic server-side, paginated and compressed the response, and virtualized the Angular grid so the browser renders only the rows it needs.</p></article>
+        <article id="reliability" class="project"><div class="project-meta"><span>WORKSOFT PI</span><span>Python · ETL</span></div><h3>Design for recovery</h3><p class="stat">&gt;80% <small>less time spent uploading</small></p><p>I built a multithreaded ingestion flow with resumable chunks, retries, and structured logs so a dropped connection doesn’t mean starting a large upload over.</p></article>
+        <article id="ownership" class="project"><div class="project-meta"><span>WORKSOFT PI &amp; CRE</span><span>.NET 8 · SQL Server</span></div><h3>Own the whole stack</h3><p class="stat">~30% <small>lower database CPU at peak load</small></p><p>I upgraded .NET 6 to .NET 8, replaced hot EF paths with tuned stored procedures, and batched parameterized database calls. Peak p95 latency improved by about 20%.</p></article>
+        <article id="evidence" class="project"><div class="project-meta"><span>INDEPENDENT PROJECT</span><span>Applied AI</span></div><h3>Show the evidence</h3><p class="stat">CaseBrief AI</p><p>A prototype for reviewing immigration evidence. A reviewer can trace a finding to its source and see what the documents still leave unanswered.</p><button type="button" class="plain-link" id="sample-open">Try a fictional packet</button></article>
+      </div>
+    </section>
+
+    <section class="shell contact" id="contact">
+      <div><p class="eyebrow">HYDERABAD, INDIA</p><h2>Let’s talk engineering.</h2><p>Open to full-stack .NET and Angular roles and .NET backend roles.</p></div>
+      <div class="contact-actions"><a class="button primary" href="https://www.linkedin.com/in/satya991/" target="_blank" rel="noopener noreferrer">LinkedIn</a><a class="button" href="https://github.com/sathya991" target="_blank" rel="noopener noreferrer">GitHub</a><a class="button" href="assets/Satya_Srivatsav_Resume.pdf" download>Download résumé</a></div>
+    </section>
+  </main>
+  <dialog id="sample" aria-labelledby="sample-title">
+    <div class="dialog-head"><h2 id="sample-title">CaseBrief AI</h2><form method="dialog"><button class="button" type="submit">Close</button></form></div>
+    <p>Which finding in this fictional packet needs follow-up?</p>
+    <div class="sample-options"><button class="button" type="button" data-fact="date">Start date</button><button class="button" type="button" data-fact="title">Job title</button><button class="button" type="button" data-fact="hours">Weekly hours</button></div>
+    <p id="sample-result" aria-live="polite">Pick a finding to see its source.</p>
+  </dialog>
+</body>
+</html>
