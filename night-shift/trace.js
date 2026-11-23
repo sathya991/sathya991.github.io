@@ -45,6 +45,7 @@ let state = "intro";
 let previousSpeed = -1;
 let cruise = false;
 let routeVisible = true;
+let roadRenderer;
 let paused = false;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -241,59 +242,86 @@ function drawScenery() {
   for (const object of objects) object.draw();
 }
 
-function drawCar() {
-  const center = project(position + carDistance, lane);
-  const scale = center.scale * .52;
-  const y = center.y;
-  const lean = steer * .10;
-  ctx.save();
-  ctx.translate(center.x, y);
-  ctx.rotate(lean);
-  ctx.scale(scale, scale);
+function carPanel(faces, color, vertices) {
+  faces.push({ color, vertices });
+}
 
-  const trail = ctx.createLinearGradient(0, 0, 0, 1.3);
-  trail.addColorStop(0, "#ff685950");
-  trail.addColorStop(1, "#ff685900");
-  ctx.fillStyle = trail;
-  ctx.beginPath();
-  ctx.ellipse(-1.06, .54, .42, .66, -.11, 0, Math.PI * 2);
-  ctx.ellipse(1.06, .54, .42, .66, .11, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#090819a8";
-  ctx.beginPath();
-  ctx.ellipse(0, .24, 2.25, .37, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#12101d";
-  ctx.fillRect(-1.82, -.38, .49, .76);
-  ctx.fillRect(1.33, -.38, .49, .76);
-  shape("#5b2d54", [-1.76, -.13], [-1.57, -1.04], [-1.15, -1.9], [1.15, -1.9], [1.57, -1.04], [1.76, -.13]);
-  shape("#c65e70", [-1.66, -.8], [-1.29, -1.32], [1.29, -1.32], [1.66, -.8], [1.46, -.58], [-1.46, -.58]);
-  shape("#db7181", [-1.15, -1.9], [-.81, -2.17], [.81, -2.17], [1.15, -1.9]);
-  shape("#293b5b", [-1.09, -1.86], [1.09, -1.86], [1.27, -1.38], [-1.27, -1.38]);
-  shape("#567291", [-.95, -1.82], [.6, -1.82], [.83, -1.69], [-1.02, -1.69]);
-  shape("#a2c9de", [-.83, -1.81], [.61, -1.81], [.72, -1.74], [-.87, -1.74]);
-  shape("#f28e8b", [-1.51, -.83], [-1.26, -1.22], [1.26, -1.22], [1.51, -.83]);
-  shape("#30243f", [-1.76, -.75], [1.76, -.75], [1.7, -.08], [-1.7, -.08]);
-  ctx.fillStyle = "#f28383";
-  ctx.fillRect(-1.57, -.62, 3.14, .075);
-  ctx.fillStyle = "#ff624e";
-  ctx.shadowColor = "#ff4d67";
-  ctx.shadowBlur = scale * .34;
-  ctx.fillRect(-1.53, -.57, .97, .2);
-  ctx.fillRect(.56, -.57, .97, .2);
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = "#ffe3c7";
-  ctx.fillRect(-1.45, -.52, .15, .09);
-  ctx.fillRect(1.30, -.52, .15, .09);
-  ctx.fillStyle = "#ffe7ad";
-  ctx.fillRect(-.33, -.46, .66, .19);
-  ctx.fillStyle = "#905b77";
-  ctx.fillRect(-1.58, -.22, 3.16, .12);
-  if (input.has("boost") && speed > 32) {
-    shape("#6cf5ff", [-.78, -.07], [-.52, -.07], [-.63, .57 + Math.sin(clock * 24) * .17]);
-    shape("#6cf5ff", [.52, -.07], [.78, -.07], [.67, .57 + Math.sin(clock * 24) * .17]);
+function carBody(faces, sections, colors) {
+  for (let i = 0; i < sections.length - 1; i++) {
+    const [z, w, base, top] = sections[i];
+    const [nextZ, nextW, nextBase, nextTop] = sections[i + 1];
+    carPanel(faces, colors[0], [[-w, top, z], [w, top, z], [nextW, nextTop, nextZ], [-nextW, nextTop, nextZ]]);
+    carPanel(faces, colors[1], [[-w, base, z], [-w, top, z], [-nextW, nextTop, nextZ], [-nextW, nextBase, nextZ]]);
+    carPanel(faces, colors[2], [[w, base, z], [w, top, z], [nextW, nextTop, nextZ], [nextW, nextBase, nextZ]]);
   }
-  ctx.restore();
+  const [z, w, base, top] = sections[0];
+  carPanel(faces, colors[3], [[-w, base, z], [w, base, z], [w, top, z], [-w, top, z]]);
+}
+
+const fallbackCarPanels = (() => {
+  const panels = [];
+  carBody(panels, [[-1.97, 1.04, .34, .77], [-1.25, 1.27, .32, .94], [1.21, 1.17, .32, .94], [1.95, 1.05, .39, .71]],
+    ["#ef8b84", "#a34c66", "#d76871", "#814354"]);
+  carBody(panels, [[-.96, .86, .91, 1.01], [-.55, .81, .92, 1.45], [.58, .78, .93, 1.42], [1.07, .85, .93, 1.01]],
+    ["#8da6bf", "#344155", "#527d9a", "#273f57"]);
+  carPanel(panels, "#f09e91", [[-.8, 1.459, -.55], [.8, 1.459, -.55], [.77, 1.429, .58], [-.77, 1.429, .58]]);
+  carPanel(panels, "#203047", [[-1.02, .36, -1.99], [1.02, .36, -1.99], [1.08, .53, -1.99], [-1.08, .53, -1.99]]);
+  for (const side of [-1, 1]) {
+    const x = side * .69;
+    carPanel(panels, "#ff6159", [[x - .31, .59, -1.99], [x + .31, .59, -1.99], [x + .31, .73, -1.99], [x - .31, .73, -1.99]]);
+    carPanel(panels, "#ffd4ba", [[x - .22, .68, -2], [x + .22, .68, -2], [x + .22, .71, -2], [x - .22, .71, -2]]);
+    for (const z of [-1.12, 1.12]) {
+      const tire = Array.from({ length: 12 }, (_, index) => {
+        const angle = index * Math.PI / 6;
+        return [side * 1.25, .34 + Math.cos(angle) * .31, z + Math.sin(angle) * .31];
+      });
+      carPanel(panels, "#101725", tire);
+    }
+  }
+  carPanel(panels, "#ffe7bd", [[-.22, .55, -2.01], [.22, .55, -2.01], [.22, .65, -2.01], [-.22, .65, -2.01]]);
+  return panels;
+})();
+
+function drawCar() {
+  const at = position + carDistance;
+  const center = project(at, lane);
+  const angle = Math.atan2(path(at + 1) - path(at - 1), 2) + steer * .28;
+  const cosine = Math.cos(angle);
+  const sine = Math.sin(angle);
+  const floorX = path(at) + lane;
+  function point(x, y, z) {
+    const distance = at + z * cosine - x * sine;
+    const worldX = floorX + x * cosine + z * sine;
+    const p = project(distance, worldX - path(distance), y + x * steer * .045);
+    return [p.x, p.y, distance];
+  }
+  ctx.fillStyle = "#0b122a9e";
+  ctx.beginPath();
+  ctx.ellipse(center.x, center.y + 3, center.scale * 1.48, center.scale * .29, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const panels = fallbackCarPanels.map(({color, vertices}) => {
+    const points = vertices.map(vertex => point(...vertex));
+    const depth = points.reduce((total, vertex) => total + vertex[2], 0) / points.length;
+    return {color, points, depth};
+  });
+  panels.sort((a, b) => b.depth - a.depth);
+  for (const {color, points} of panels) shape(color, ...points);
+
+  for (const side of [-1, 1]) {
+    const [x, y] = point(side * .69, .63, -2.02);
+    const radius = Math.max(3, center.scale * .48);
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    gradient.addColorStop(0, "#ff605880");
+    gradient.addColorStop(1, "#ff605800");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    if (input.has("boost") && speed > 32) {
+      const glow = point(side * .53, .4, -2.15);
+      const tail = point(side * .53, .34, -2.95 - Math.sin(clock * 24) * .21);
+      shape("#8ef5ff", [glow[0] - 3, glow[1]], [glow[0] + 3, glow[1]], tail);
+    }
+  }
 }
 
 function resize() {
@@ -306,9 +334,17 @@ function resize() {
   ctx.setTransform(density, 0, 0, density, 0, 0);
   horizon = height * .49;
   depth = Math.min(height * 1.12, width * 1.65);
+  roadRenderer?.resize(width, height);
 }
 
 function draw() {
+  if (roadRenderer) {
+    roadRenderer.draw({
+      position, lane, steer, blend, cameraX, clock, collected,
+      boosting: input.has("boost") && speed > 32
+    });
+    return;
+  }
   ctx.clearRect(0, 0, width, height);
   drawRoad();
   drawScenery();
@@ -474,8 +510,31 @@ function routeInView() {
   return bounds.bottom > window.innerHeight * .54 && bounds.top < window.innerHeight * .45;
 }
 
+async function loadRoadRenderer() {
+  const surface = $("scene-3d");
+  const context = surface.getContext("webgl2", { alpha: true, antialias: true });
+  if (!context) return;
+  surface.addEventListener("webglcontextlost", () => {
+    roadRenderer = undefined;
+    delete drive.dataset.renderer;
+  });
+  try {
+    const { createRoadRenderer } = await import("./scene-3d.js?v=1");
+    if (context.isContextLost()) return;
+    const renderer = createRoadRenderer({
+      canvas: surface, context, path, seed, trackWidth, checkpoints, routeEnd, carDistance, sparks
+    });
+    renderer.resize(width, height);
+    roadRenderer = renderer;
+    drive.dataset.renderer = "3d";
+  } catch {
+    // The existing Canvas scene stays available if the 3D renderer cannot load.
+  }
+}
+
 if (ctx) {
   resize();
+  loadRoadRenderer().catch(() => {});
   new ResizeObserver(resize).observe(drive);
   new IntersectionObserver(([entry]) => {
     routeVisible = entry.isIntersecting;
