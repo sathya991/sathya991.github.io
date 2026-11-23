@@ -18,11 +18,14 @@
   let context;
   let bus;
   let noise;
-  let enabled = false;
+  let engine;
+  let wanted = true;
+  let playing = false;
+  let wasUnlocked = false;
+  let driveSound = { running: false };
   let timer;
   let step = 0;
   let playAt = 0;
-  let generation = 0;
 
   function initialize() {
     context = new AudioEngine();
@@ -33,9 +36,59 @@
     limiter.ratio.value = 4;
     bus.connect(limiter);
     limiter.connect(context.destination);
+    engine = createEngine(limiter);
+    context.addEventListener("statechange", synchronize);
     noise = context.createBuffer(1, Math.ceil(context.sampleRate * .35), context.sampleRate);
     const samples = noise.getChannelData(0);
     for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+  }
+
+  function createEngine(destination) {
+    const level = context.createGain();
+    level.gain.value = 0;
+    level.connect(destination);
+    const lowpass = context.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 220;
+    lowpass.Q.value = .77;
+    lowpass.connect(level);
+    const wave = context.createPeriodicWave(
+      new Float32Array([0, .40, 1, .11, .55, .31, .15, .09]),
+      new Float32Array(8)
+    );
+    const banks = [-1, 1].map(side => {
+      const oscillator = context.createOscillator();
+      oscillator.setPeriodicWave(wave);
+      oscillator.frequency.value = 27;
+      oscillator.detune.value = side * 12;
+      oscillator.connect(lowpass);
+      oscillator.start();
+      return oscillator;
+    });
+    const sub = context.createOscillator();
+    sub.type = "triangle";
+    sub.frequency.value = 28;
+    const subMix = context.createGain();
+    subMix.gain.value = .26;
+    sub.connect(subMix);
+    subMix.connect(lowpass);
+    sub.start();
+    return {level, lowpass, banks, sub};
+  }
+
+  function updateEngine() {
+    if (!engine) return;
+    const {speed = 0, running, throttle, boost} = driveSound;
+    const time = context.currentTime;
+    const audible = playing && running;
+    const shift = [38, 30, 20.5, 10.5, 0].find(point => speed >= point);
+    const rpm = 810 + (shift ? 1210 : 0) + (speed - shift) * 315 + (throttle ? 330 : 0) + (boost ? 390 : 0);
+    const firing = Math.min(rpm, 7000) / 30;
+    for (const bank of engine.banks) bank.frequency.setTargetAtTime(firing, time, .075);
+    engine.sub.frequency.setTargetAtTime(firing / 2, time, .085);
+    engine.lowpass.frequency.setTargetAtTime(160 + speed * 8 + (throttle ? 170 : 0) + (boost ? 280 : 0), time, .10);
+    engine.level.gain.setTargetAtTime(audible ? (throttle ? .092 : .043) + speed * .0011 : 0, time, .065);
+    bus.gain.setTargetAtTime(playing ? (audible ? .24 : .31) : 0, time, .080);
   }
 
   function levelAt(time, volume, attack, length, destination = bus) {
@@ -118,7 +171,7 @@
   }
 
   function schedule() {
-    if (!enabled || context.state !== "running") return;
+    if (!playing || context.state !== "running") return;
     if (playAt < context.currentTime) playAt = context.currentTime + .025;
     while (playAt < context.currentTime + .114) {
       sequence(playAt, step++);
@@ -126,43 +179,55 @@
     }
   }
 
-  function display() {
-    button.setAttribute("aria-pressed", String(enabled));
-    button.textContent = enabled ? "Music on" : "Music off";
-  }
-
-  async function setEnabled(value) {
-    const token = ++generation;
-    enabled = value;
-    clearInterval(timer);
-    display();
-    if (!value) {
-      if (context) {
-        bus.gain.cancelScheduledValues(context.currentTime);
-        bus.gain.setTargetAtTime(0, context.currentTime, .036);
-      }
-      return;
-    }
-    try {
-      if (!context) initialize();
-      await context.resume();
-      if (token !== generation) return;
-      bus.gain.cancelScheduledValues(context.currentTime);
-      bus.gain.setTargetAtTime(.31, context.currentTime, .056);
+  function synchronize() {
+    const canPlay = wanted && !document.hidden && context?.state === "running";
+    if (canPlay && !playing) {
+      playing = true;
+      wasUnlocked = true;
       playAt = context.currentTime + .055;
       step = Math.ceil(step / 4) * 4;
       schedule();
       timer = setInterval(schedule, 30);
+    } else if (!canPlay && playing) {
+      playing = false;
+      clearInterval(timer);
+    }
+    updateEngine();
+    button.setAttribute("aria-pressed", String(playing));
+    button.textContent = playing ? "Sound on" : wanted && !wasUnlocked ? "Enable sound" : "Sound off";
+  }
+
+  function unlock() {
+    if (!wanted || document.hidden) return;
+    try {
+      if (!context) initialize();
+      if (context.state !== "running") context.resume().then(synchronize, synchronize);
+      synchronize();
     } catch {
-      if (token !== generation) return;
-      enabled = false;
-      display();
+      synchronize();
     }
   }
 
   button.hidden = false;
-  button.addEventListener("click", () => setEnabled(!enabled));
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && enabled) setEnabled(false);
+  button.addEventListener("click", () => {
+    if (playing || !wanted) wanted = !playing;
+    if (wanted) unlock();
+    else synchronize();
   });
+  function unlockOnInteraction(event) {
+    if (event.target instanceof Node && button.contains(event.target)) return;
+    if (!playing) unlock();
+  }
+  document.addEventListener("pointerdown", unlockOnInteraction, { passive: true });
+  document.addEventListener("click", unlockOnInteraction);
+  document.addEventListener("keydown", unlockOnInteraction);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) synchronize();
+    else unlock();
+  });
+  document.getElementById("drive").addEventListener("night-shift:engine", event => {
+    driveSound = event.detail;
+    if (playing) updateEngine();
+  });
+  unlock();
 })();
