@@ -296,3 +296,20 @@ kbd {background:#192741;border-color:#536b8d}
   .top nav {gap:.4rem}
   .top nav a:first-child {display:none}
 }
+
+.top-actions {display:flex;align-items:center;justify-self:end;gap:.45rem}
+.music-toggle {min-height:2.25rem;padding-block:.32rem;white-space:nowrap}
+.music-toggle[aria-pressed="true"] {border-color:var(--cyan);color:var(--cyan);background:#152d43}
+.scene-3d {position:absolute;inset:0;width:100%;height:100%;z-index:-1;visibility:hidden;pointer-events:none}
+.drive[data-renderer="3d"] .scene-3d {visibility:visible}
+.drive[data-renderer="3d"] #scene {visibility:hidden}
+@media(max-width:39rem) {
+  .top-actions {gap:.28rem}
+  .music-toggle {font-size:.75rem;min-height:2.25rem;padding-inline:.36rem}
+}
+@media(max-width:29rem) {
+  .top nav a:first-child {display:none}
+}
+@media(max-width:23rem) {
+  .top nav a[href="#work"] {display:none}
+}
