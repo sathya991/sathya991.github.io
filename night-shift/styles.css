@@ -33,9 +33,8 @@ button {font:inherit;color:inherit;cursor:pointer}
 .drive::before {content:"";position:absolute;inset:0 0 27%;z-index:-2;background:url("assets/night-city.webp?v=2") center 55% / cover no-repeat;opacity:.92}
 #scene {position:absolute;inset:0;width:100%;height:100%;z-index:-1}
 .vignette {position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#100d20e8 0%,#100d20b3 24%,#100d2000 64%),linear-gradient(180deg,#100e1e70,transparent 24%,transparent 79%,#100e1ebf);transition:opacity .55s}
-.drive[data-state=active] .vignette,.drive[data-state=finished] .vignette {opacity:.3}
 .intro {position:absolute;z-index:1;left:clamp(1rem,6.6vw,7rem);top:50%;transform:translateY(-53%);width:min(31rem,calc(100% - 2rem));transition:opacity .26s,visibility .26s}
-.drive[data-state=active] .intro,.drive[data-state=finished] .intro {opacity:0;visibility:hidden;pointer-events:none}
+.drive:not([data-state=intro]) .intro {opacity:0;visibility:hidden;pointer-events:none}
 .eyebrow {font:700 .83rem/1.45 var(--mono);letter-spacing:.12em;color:var(--coral)}
 .eyebrow>span {display:inline-block;width:.5rem;height:.5rem;background:var(--coral);box-shadow:0 0 .7rem #ff876d85;margin-right:.45rem;vertical-align:.08rem}
 .intro h1 {font:850 clamp(5.4rem,13vw,13rem)/.72 var(--sans);letter-spacing:-.104em;text-transform:uppercase;margin:.18em 0 .16em}
@@ -58,8 +57,6 @@ kbd {display:inline-block;font:650 .72rem var(--mono);border:1px solid #544053;b
 .hud-data small {display:inline;color:var(--cyan)}
 .route-line {position:relative;background:#42304d;height:.25rem;margin-top:.72rem;border-radius:.2rem}
 .route-line>div {width:0%;height:100%;background:var(--coral);border-radius:.2rem}
-.route-line i {position:absolute;left:var(--at);top:50%;height:.44rem;width:.44rem;border:1px solid var(--cyan);background:#21182d;border-radius:50%;transform:translate(-50%,-50%)}
-.route-line i.passed {background:var(--cyan)}
 .drive[data-state=intro] .hud,.drive[data-state=intro] .touch,.drive[data-state=intro] .guide {visibility:hidden}
 .arrival {position:absolute;left:clamp(1rem,6.6vw,7rem);top:clamp(6rem,22%,13rem);width:min(23rem,calc(100% - 2rem));padding:1rem 1.05rem;background:#160f26ed;border:1px solid #80557b;border-left:3px solid var(--coral);border-radius:.28rem;box-shadow:0 .65rem 2.6rem #10081b84}
 .arrival h2 {font-size:clamp(1.5rem,3vw,2.1rem);line-height:1.1;letter-spacing:-.04em;margin-top:.25rem}
@@ -125,7 +122,7 @@ dialog::backdrop {background:#100b1ccd}
   *,*::before,*::after {scroll-behavior:auto!important;transition:none!important}
 }
 .hud-data #spark-count {display:block;margin-top:.23rem;color:var(--muted)}
-.drive[data-state=finished] .touch,.drive[data-state=finished] .guide {visibility:hidden}
+.drive:is([data-state=junction],[data-state=turning],[data-state=parked]) :is(.touch,.guide) {visibility:hidden}
 .drive:focus {outline:none}
 .hud-actions {display:flex;gap:.3rem}
 #cruise[aria-pressed=true] {background:var(--cyan);border-color:var(--cyan);color:#171025}
@@ -164,7 +161,7 @@ dialog::backdrop {background:#100b1ccd}
   background:linear-gradient(90deg,#090f22fa 0%,#0b1228ed 28%,#0b1228a6 44%,#0b122826 61%,transparent 92%),
     linear-gradient(180deg,#090f2256,transparent 28%,transparent 76%,#090f229e);
 }
-.drive[data-state=active] .vignette,.drive[data-state=finished] .vignette {opacity:.46}
+.drive:not([data-state=intro]) .vignette {opacity:.40}
 .intro {
   top:49.5%;
   width:min(32rem,calc(100% - 2rem));
@@ -278,7 +275,6 @@ kbd {background:#192741;border-color:#536b8d}
 .arrival-actions {display:flex;align-items:center;flex-wrap:wrap;gap:.4rem .85rem}
 .arrival-actions button {min-height:2rem;padding:.3rem .51rem;background:#192944;border-color:#60759c;font-size:.81rem}
 .arrival-actions button:hover {background:#27395a}
-#speed.speed-paused {opacity:.52}
 
 .repo-section {padding-block:0 clamp(2.8rem,6.5vw,6rem)}
 .repo-card {display:flex;flex-direction:column}
@@ -312,4 +308,59 @@ kbd {background:#192741;border-color:#536b8d}
 }
 @media(max-width:23rem) {
   .top nav a[href="#work"] {display:none}
+}
+
+.hud button:disabled {opacity:.48;cursor:default}
+.junction {
+  position:absolute;
+  z-index:2;
+  left:clamp(1rem,6.6vw,7rem);
+  top:clamp(8rem,24%,14rem);
+  width:min(23.2rem,calc(100% - 2rem));
+  padding:1rem 1.05rem 1.1rem;
+  border:1px solid #6a8da9;
+  border-radius:.48rem;
+  background:#0a1328f7;
+  box-shadow:0 .65rem 2.2rem #05091ac9;
+}
+.junction h2 {font-size:clamp(1.46rem,2.8vw,2rem);line-height:1.12;letter-spacing:-.035em}
+.junction p {font-size:.88rem;color:#d5e1f6;margin-top:.38rem}
+.junction-map {
+  display:grid;
+  grid-template:". north ." "west center east" ". south ." / minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
+  gap:.3rem;
+  margin-top:.75rem;
+  align-items:stretch;
+}
+.junction-map button {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:3rem;
+  border:1px solid #587093;
+  border-radius:.33rem;
+  background:#13213a;
+  color:#f3f6ff;
+  padding:.3rem .18rem .38rem;
+  font-size:.84rem;
+  line-height:1.12;
+}
+.junction-map button span {color:var(--district);font:700 1.02rem/1 var(--mono);margin-bottom:.19rem}
+.junction-map button:is(:hover,:focus-visible,.visited) {border-color:var(--district)}
+.junction-map button:hover {background:#203350}
+.junction-map [data-route=north] {grid-area:north;--district:#bda0ff}
+.junction-map [data-route=west] {grid-area:west;--district:#68f4e3}
+.junction-map [data-route=east] {grid-area:east;--district:#ff88c4}
+.junction-map [data-route=south] {grid-area:south;--district:#ffc38d}
+.junction-center {
+  grid-area:center;
+  display:grid;
+  grid-template:1fr 1fr / 1fr 1fr;
+  gap:.37rem;
+  padding:.24rem 26%;
+}
+.junction-center i {border:1px solid #537193;border-radius:.15rem;background:#1c2d47}
+@media(max-width:48rem) {
+  .junction {top:9.8rem;padding:.76rem .83rem .83rem}
 }

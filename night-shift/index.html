@@ -8,9 +8,9 @@
   <meta name="description" content="Drive a short night route through the engineering portfolio of Satya Srivatsav, a .NET and Angular engineer in Hyderabad.">
   <title>Night Shift · Satya Srivatsav</title>
   <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=4">
-  <script src="trace.js?v=4" defer></script>
-  <script src="soundtrack.js?v=1" defer></script>
+  <link rel="stylesheet" href="styles.css?v=5">
+  <script src="trace.js?v=5" defer></script>
+  <script src="soundtrack.js?v=2" defer></script>
 </head>
 <body>
   <a class="skip" href="#work">Skip to engineering work</a>
@@ -18,7 +18,7 @@
     <a class="brand" href="#drive"><span class="brand-mark" aria-hidden="true"></span>Satya Srivatsav</a>
     <nav aria-label="Main navigation"><a href="#drive">Drive</a><a href="#work">Work</a><a href="#projects">Projects</a><a href="#contact">Contact</a></nav>
     <div class="top-actions">
-      <button class="button music-toggle" id="music-toggle" type="button" aria-pressed="false" hidden>Music off</button>
+      <button class="button music-toggle" id="music-toggle" type="button" aria-pressed="false" hidden>Enable sound</button>
       <a class="button resume" href="assets/Satya_Srivatsav_Resume.pdf" target="_blank" rel="noopener">Résumé</a>
     </div>
   </header>
@@ -39,28 +39,39 @@
           <div><dt>~30%</dt><dd>lower database CPU at peak</dd></div>
         </dl>
         <div class="intro-actions"><button id="start" class="button primary" type="button">Drive the portfolio</button><a href="#projects" class="button hero-secondary">View projects</a></div>
-        <p class="accent">Drive through four project stops. Use your keyboard or onscreen controls.</p>
+        <p class="accent">Take an M5 through Hyderabad after dark. Pick a direction at the crossroads.</p>
       </div>
-      <div class="road-legend" aria-label="The four stops on the drive">
-        <p class="legend-title"><span aria-hidden="true"></span> THE ROUTE <small>HYDERABAD AFTER DARK</small></p>
-        <ol class="route-stops">
-          <li><a href="#performance"><span>01</span>Performance</a></li>
-          <li><a href="#reliability"><span>02</span>Reliability</a></li>
-          <li><a href="#ownership"><span>03</span>Ownership</a></li>
-          <li><a href="#evidence"><span>04</span>Traceability</a></li>
-        </ol>
+      <div class="road-legend" aria-label="Destinations">
+        <p class="legend-title"><span aria-hidden="true"></span> HYDERABAD AFTER DARK <small>BMW M5 · E39</small></p>
+        <ul class="route-stops">
+          <li><a href="#evidence"><span aria-hidden="true">↑</span>CaseBrief AI</a></li>
+          <li><a href="#aftermatch"><span aria-hidden="true">←</span>AfterMatch</a></li>
+          <li><a href="#my-time"><span aria-hidden="true">→</span>My Time</a></li>
+          <li><a href="#work"><span aria-hidden="true">↓</span>Worksoft</a></li>
+        </ul>
       </div>
       <div class="hud" aria-label="Route status">
-        <div class="hud-heading"><span><b>NIGHT SHIFT</b><small id="hud-next">NEXT / PERFORMANCE</small></span><div class="hud-actions"><button type="button" id="cruise" class="button" aria-pressed="false" title="Hold a steady speed while you steer">Cruise</button><button type="button" id="restart" class="button" title="Restart the drive (R)">Restart</button></div></div>
-        <div class="route-line" aria-hidden="true"><div id="route-fill"></div><i style="--at:14%"></i><i style="--at:36%"></i><i style="--at:60%"></i><i style="--at:83%"></i></div>
-        <div class="hud-data"><span><span id="route-text">0 / 4 checkpoints</span><small id="spark-count">0/8 sparks</small></span><span id="speed">00 <small>KM/H</small></span></div>
+        <div class="hud-heading"><span><b>BMW M5 · E39</b><small id="hud-next">NEXT / CROSSROADS</small></span><div class="hud-actions"><button type="button" id="cruise" class="button" aria-pressed="false" title="Hold a steady speed while you steer">Cruise</button><button type="button" id="restart" class="button" title="Restart the drive (R)">Restart</button></div></div>
+        <div class="route-line" aria-hidden="true"><div id="route-fill"></div></div>
+        <div class="hud-data"><span><span id="route-text">0 / 4 stops visited</span><small id="spark-count">0/8 sparks</small></span><span id="speed">00 <small>KM/H</small></span></div>
       </div>
+      <section class="junction" id="junction" aria-labelledby="junction-title" hidden>
+        <h2 id="junction-title" tabindex="-1">Pick a direction.</h2>
+        <p>Use the arrow keys or choose a destination.</p>
+        <div class="junction-map">
+          <button type="button" data-route="north"><span aria-hidden="true">↑</span><strong>CaseBrief AI</strong></button>
+          <button type="button" data-route="west"><span aria-hidden="true">←</span><strong>AfterMatch</strong></button>
+          <div class="junction-center" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <button type="button" data-route="east"><span aria-hidden="true">→</span><strong>My Time</strong></button>
+          <button type="button" data-route="south"><span aria-hidden="true">↓</span><strong>Worksoft</strong></button>
+        </div>
+      </section>
       <aside class="arrival" id="arrival" aria-live="polite" aria-atomic="true" hidden>
         <p id="arrival-kicker" class="eyebrow"></p>
-        <h2 id="arrival-title"></h2>
+        <h2 id="arrival-title" tabindex="-1"></h2>
         <p id="arrival-result" class="arrival-result"></p>
         <p id="arrival-detail" class="arrival-detail"></p>
-        <div class="arrival-actions"><a id="arrival-link" href="#work" class="plain-link">See the project</a><button type="button" id="pause-drive" class="button">Pause to read</button></div>
+        <div class="arrival-actions"><a id="arrival-link" href="#work" class="plain-link">See the project</a><button type="button" id="back-to-junction" class="button">Back to crossroads</button></div>
       </aside>
       <p id="guide" class="guide"><span><kbd>A</kbd> <kbd>D</kbd> Steer</span><span><kbd>W</kbd> Accelerate</span><span><kbd>S</kbd> Brake</span><span><kbd>Shift</kbd> Boost</span></p>
       <div class="touch" aria-label="Touch driving controls">
