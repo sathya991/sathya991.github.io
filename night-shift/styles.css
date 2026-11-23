@@ -27,11 +27,10 @@ button {font:inherit;color:inherit;cursor:pointer}
 .button.primary {color:#24151e;background:var(--coral);border-color:var(--coral)}
 .button.primary:hover {background:#ffa899}
 .resume {justify-self:end;min-height:2.25rem;padding-block:.32rem}
-.resume span {color:var(--coral)}
 .plain-link {border:0;background:none;color:var(--ink);font-weight:650;font-size:.94rem;padding:0;text-decoration:underline;text-underline-offset:.28rem;text-decoration-color:#bc9db4}
 
 .drive {min-height:42rem;height:100svh;position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(circle at 65% 35%,#9a465a,#1c1739 52%,#100e1e 80%)}
-.drive::before {content:"";position:absolute;inset:0 0 27%;z-index:-2;background:url("assets/night-city.webp") center 55% / cover no-repeat;opacity:.92}
+.drive::before {content:"";position:absolute;inset:0 0 27%;z-index:-2;background:url("assets/night-city.webp?v=2") center 55% / cover no-repeat;opacity:.92}
 #scene {position:absolute;inset:0;width:100%;height:100%;z-index:-1}
 .vignette {position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#100d20e8 0%,#100d20b3 24%,#100d2000 64%),linear-gradient(180deg,#100e1e70,transparent 24%,transparent 79%,#100e1ebf);transition:opacity .55s}
 .drive[data-state=active] .vignette,.drive[data-state=finished] .vignette {opacity:.3}
@@ -108,7 +107,7 @@ dialog::backdrop {background:#100b1ccd}
   .top nav a:last-child {display:none}
   .brand {font-size:.82rem;gap:.34rem}
   .brand-mark {width:1.15rem;height:1.15rem}
-  .resume {font-size:.78rem;padding-inline:.43rem;gap:.21rem}
+  .resume {font-size:.78rem;padding-inline:.43rem}
   .intro {top:39%;transform:translateY(-39%)}
   .intro h1 {font-size:clamp(5rem,17.8vw,7rem)}
   .projects {grid-template-columns:1fr}
@@ -136,3 +135,147 @@ dialog::backdrop {background:#100b1ccd}
   .hud-heading b {font-size:.72rem}
   .hud button {font-size:.74rem;padding-inline:.36rem}
 }
+
+/* The portfolio identity and work outcomes stay readable over the animated scene. */
+:root {
+  --dark:#0c1123;
+  --panel:#141d34;
+  --ink:#fff7ef;
+  --muted:#bdc7dd;
+  --coral:#ffa287;
+  --cyan:#91ecf6;
+  --line:#334361;
+}
+.top {
+  background:#080e21de;
+  border-color:#65759445;
+}
+.drive {
+  min-height:47rem;
+  background:radial-gradient(circle at 72% 37%,#674957,#203457 48%,#10152b 85%);
+}
+.drive::before {
+  inset:0 0 24%;
+  background-image:url("assets/night-city.webp?v=2");
+  background-position:center 55%;
+  opacity:1;
+}
+.vignette {
+  background:linear-gradient(90deg,#090f22fa 0%,#0b1228ed 28%,#0b1228a6 44%,#0b122826 61%,transparent 92%),
+    linear-gradient(180deg,#090f2256,transparent 28%,transparent 76%,#090f229e);
+}
+.drive[data-state=active] .vignette,.drive[data-state=finished] .vignette {opacity:.46}
+.intro {
+  top:49.5%;
+  width:min(32rem,calc(100% - 2rem));
+  transform:translateY(-44%);
+}
+.intro h1 {
+  font-size:clamp(4rem,7.6vw,8.05rem);
+  line-height:.85;
+  letter-spacing:-.081em;
+  text-transform:none;
+  margin:.14em 0 .18em;
+}
+.hero-role {font-size:clamp(1.14rem,2vw,1.55rem);font-weight:720;line-height:1.28}
+.hero-role span {margin-inline:.14rem;color:var(--coral)}
+.tagline {color:#d5dced;max-width:29rem;margin-top:.55rem;line-height:1.53;font-size:clamp(1rem,1.36vw,1.12rem)}
+.hero-results {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:.6rem;
+  margin:1.2rem 0 0;
+  max-width:28.5rem;
+}
+.hero-results div {min-width:0;border-top:1px solid #65799999;padding:.55rem .2rem .15rem 0}
+.hero-results dt {font-size:clamp(1.45rem,2.8vw,2.35rem);letter-spacing:-.055em;font-weight:800;line-height:1.04;color:var(--cyan)}
+.hero-results dd {margin:.32rem 0 0;color:#d8e1f3;font-size:.85rem;line-height:1.25}
+.intro-actions {margin-top:1.12rem;gap:.58rem}
+.hero-secondary {background:#182640df;border-color:#647496}
+.button.primary {color:#21121a}
+.accent {color:#bfcce2;margin-top:.62rem;font-size:.86rem}
+.road-legend {
+  position:absolute;
+  right:clamp(1rem,5vw,5rem);
+  bottom:clamp(1rem,4vw,3rem);
+  width:min(25rem,36vw);
+  padding:.7rem .83rem .76rem;
+  border:1px solid #617a9e90;
+  border-radius:.42rem;
+  background:#0b1428e6;
+}
+.drive:not([data-state=intro]) .road-legend {display:none}
+.legend-title {display:flex;align-items:center;gap:.4rem;color:var(--cyan);font:700 .8rem var(--mono);letter-spacing:.06em}
+.legend-title>span {height:.45rem;width:.45rem;border-radius:50%;background:var(--cyan)}
+.legend-title small {margin-left:auto;color:#b8c6e0;font:600 .67rem var(--mono);letter-spacing:0}
+.route-stops {display:grid;grid-template-columns:repeat(2,1fr);gap:.34rem .55rem;list-style:none;padding:0;margin:.54rem 0 0}
+.route-stops a {display:flex;align-items:center;gap:.39rem;color:#f2f5ff;font-size:.87rem}
+.route-stops a:hover {color:var(--cyan)}
+.route-stops a span {color:var(--coral);font:650 .69rem var(--mono)}
+
+.hud,.arrival,.guide {background:#0c162bef;border-color:#5c79a39a}
+.hud {width:min(20rem,calc(100% - 2rem))}
+.hud-heading small {margin-top:.15rem;color:#cbd9f1}
+.hud button {min-height:2.25rem;background:#172741;border-color:#5c7099}
+.hud button:hover {background:#243957}
+.arrival {
+  width:min(25rem,calc(100% - 2rem));
+  padding:1.18rem 1.2rem;
+  border-left:3px solid var(--cyan);
+  box-shadow:0 .65rem 2rem #060a1a9c;
+}
+.arrival .arrival-result {margin:.62rem 0 .3rem;color:var(--cyan);font-weight:770;font-size:1.06rem;line-height:1.28}
+.arrival .arrival-detail {color:#d3ddf0;line-height:1.5;margin:.35rem 0 .75rem}
+.guide {gap:.65rem;padding:.61rem .78rem;color:#e1e9f8;font-size:.87rem}
+.guide span {margin:0}
+kbd {background:#192741;border-color:#536b8d}
+.touch button {background:#192843ef;border-color:#758db5}
+.touch button[data-driving=true] {background:var(--coral);color:#201018}
+.project {
+  --stop-color:var(--coral);
+  background:linear-gradient(145deg,#19263e,#111a30 68%);
+  border-top:2px solid var(--stop-color);
+  padding:clamp(1.16rem,3vw,2rem);
+}
+.project[data-stop=reliability] {--stop-color:#91ecf6}
+.project[data-stop=ownership] {--stop-color:#ffcb87}
+.project[data-stop=evidence] {--stop-color:#c5a9ff}
+.project-stop {display:flex;align-items:center;gap:.54rem;font:750 .8rem var(--mono);letter-spacing:.085em}
+.project p.project-stop {color:var(--stop-color)}
+.project-stop span {border:1px solid currentColor;border-radius:.21rem;padding:.14rem .25rem;letter-spacing:0}
+.project h3 {margin:.77rem 0 .47rem}
+.project p.project-meta {font:620 .86rem/1.4 var(--sans);color:#becce6}
+.project .stat {color:var(--stop-color)}
+.project .stat small {font-size:.92rem}
+
+@media(max-width:55rem) {
+  .intro {width:min(27rem,calc(100% - 2rem))}
+  .intro h1 {font-size:clamp(4rem,9.3vw,6.1rem)}
+  .drive::before {background-position:64% center}
+  .road-legend {width:min(22rem,42vw)}
+}
+@media(max-width:44rem) {
+  .drive {min-height:48rem}
+  .intro {top:5.45rem;transform:none}
+  .vignette {background:linear-gradient(180deg,#0b1125e8 5%,#0b1125c7 43%,#0b112551 60%,transparent 85%)}
+  .intro h1 {font-size:clamp(3.45rem,13vw,5.55rem)}
+  .hero-results {gap:.45rem;margin-top:.86rem}
+  .hero-results dd {font-size:.82rem}
+  .road-legend {display:none}
+  .arrival {top:10rem;width:min(23rem,calc(100% - 2rem));max-width:none;padding:.76rem .88rem}
+  .arrival h2 {font-size:1.51rem}
+  .arrival .arrival-result {font-size:1rem}
+}
+@media(max-width:35rem) {
+  .tagline {max-width:23rem;font-size:.98rem}
+  .intro-actions {margin-top:.86rem}
+  .intro-actions .button {min-height:2.78rem}
+  .hero-role {font-size:1.03rem}
+  .hero-results {max-width:24rem}
+  .hero-results dt {font-size:1.67rem}
+  .accent {max-width:24rem;font-size:.79rem}
+}
+.arrival-actions {display:flex;align-items:center;flex-wrap:wrap;gap:.4rem .85rem}
+.arrival-actions button {min-height:2rem;padding:.3rem .51rem;background:#192944;border-color:#60759c;font-size:.81rem}
+.arrival-actions button:hover {background:#27395a}
+#speed.speed-paused {opacity:.52}

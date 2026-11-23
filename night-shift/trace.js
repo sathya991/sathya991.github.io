@@ -1,10 +1,10 @@
 "use strict";
 
 const checkpoints = [
-  { at: 110, label: "PERFORMANCE", title: "Make it fast at scale.", detail: "5,000+ rows stayed responsive with server-side pagination and an Angular grid that renders only what’s visible.", anchor: "performance", color: "#ff9175" },
-  { at: 280, label: "RELIABILITY", title: "Give failures a way back.", detail: "Resumable chunks and retries helped cut file upload time by more than 80%.", anchor: "reliability", color: "#70e8f6" },
-  { at: 470, label: "OWNERSHIP", title: "Follow the problem across layers.", detail: "I worked from .NET through SQL Server to cut database CPU by about 30% under peak load.", anchor: "ownership", color: "#ffbd75" },
-  { at: 650, label: "TRACEABILITY", title: "Show the evidence.", detail: "CaseBrief AI explores how a reviewer can trace a finding back to a document and spot what’s missing.", anchor: "evidence", color: "#bca0ff" }
+  { at: 110, label: "PERFORMANCE", title: "Responsive grids at scale", result: "5,000+ rows in responsive grids", detail: "Paging and compression keep ASP.NET Core responses small. Angular renders only the rows the user can see.", anchor: "performance", color: "#ffa287" },
+  { at: 280, label: "RELIABILITY", title: "Uploads that recover", result: "Over 80% less time spent uploading", detail: "Resumable chunks and retries let the Python ingestion pipeline recover after an interruption.", anchor: "reliability", color: "#91ecf6" },
+  { at: 470, label: "OWNERSHIP", title: "From runtime to database", result: "About 30% lower database CPU at peak", detail: "A .NET 8 upgrade, batched database calls, and tuned stored procedures cut work across the stack.", anchor: "ownership", color: "#ffcb87" },
+  { at: 650, label: "TRACEABILITY", title: "CaseBrief AI", result: "Review findings alongside their sources", detail: "Follow a finding back to the document it came from and see what still needs human review.", anchor: "evidence", color: "#c5a9ff" }
 ];
 const routeEnd = 780;
 const trackWidth = 5.4;
@@ -44,6 +44,8 @@ let lastFrame;
 let state = "intro";
 let previousSpeed = -1;
 let cruise = false;
+let routeVisible = true;
+let paused = false;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const path = distance => 10 * Math.sin(distance / 69) + 4 * Math.sin(distance / 32);
@@ -89,22 +91,28 @@ function drawRoad() {
     if (far.y > height) break;
     const night = index % 2 === 0;
     const faint = index > first + 44;
-    ctx.fillStyle = night ? "#171427" : "#1c172e";
+    ctx.fillStyle = night ? "#10192e" : "#131e35";
     ctx.fillRect(0, far.y, width, near.y - far.y + 1);
-    strip(near, far, -trackWidth - .48, trackWidth + .48, night ? "#36253c" : "#2f2137");
-    strip(near, far, -trackWidth, trackWidth, night ? "#242238" : "#28253c");
+    strip(near, far, -trackWidth - .48, trackWidth + .48, night ? "#2f3851" : "#252f47");
+    strip(near, far, -trackWidth, trackWidth, night ? "#1a253b" : "#1e2941");
     for (const side of [-1, 1]) {
       const edge = side * trackWidth;
-      strip(near, far, edge - .056, edge + .056, faint ? "#5b4660" : night ? "#f49483" : "#965d7c");
-      strip(near, far, edge + side * .23 - .09, edge + side * .23 + .09, night ? "#683b62" : "#a54a71");
+      strip(near, far, edge - .056, edge + .056, faint ? "#576a8f" : night ? "#e6bcab" : "#926d8e");
+      strip(near, far, edge + side * .23 - .09, edge + side * .23 + .09, night ? "#54688c" : "#945f87");
     }
-    if (index % 4 < 2) strip(near, far, -.045, .045, faint ? "#686071" : "#e4a4a5");
+    if (index % 4 < 2) strip(near, far, -.045, .045, faint ? "#68758b" : "#dcc3c5");
+    // Narrow, irregular highlights suggest the reflections of city lights on wet tarmac.
+    if (!faint && index % 3 !== 1) {
+      const glint = seed(index * 5.1);
+      const line = (index % 2 === 0 ? -1 : 1) * (2.3 + glint * 2.3);
+      strip(near, far, line, line + .06 + glint * .11, index % 2 === 0 ? "#79d7fa23" : "#ffa28725");
+    }
   }
 
   const fog = ctx.createLinearGradient(0, horizon - 5, 0, horizon + height * .16);
-  fog.addColorStop(0, "#1a173100");
-  fog.addColorStop(.16, "#312344b8");
-  fog.addColorStop(1, "#16122c00");
+  fog.addColorStop(0, "#19294400");
+  fog.addColorStop(.16, "#364c70ad");
+  fog.addColorStop(1, "#15264400");
   ctx.fillStyle = fog;
   ctx.fillRect(0, horizon - 5, width, height * .17);
 }
@@ -120,15 +128,15 @@ function drawTower(distance, side, index) {
   const top = project(distance, offset, tall);
   const backTop = project(distance + length, offset, tall);
   if (a.scale < 1.9 || top.y > height || Math.min(a.x, b.x, c.x) > width || Math.max(a.x, b.x, c.x) < 0) return;
-  shape("#19172e", [a.x, a.y], [b.x, b.y], [b.x, top.y], [a.x, top.y]);
-  shape(side > 0 ? "#272141" : "#211d39", [a.x, a.y], [c.x, c.y], [c.x, backTop.y], [a.x, top.y]);
-  shape("#362a49", [a.x, top.y], [b.x, top.y], [b.x - (a.x - c.x) * .18, top.y - a.scale * .36], [a.x, top.y - a.scale * .36]);
+  shape("#17253d", [a.x, a.y], [b.x, b.y], [b.x, top.y], [a.x, top.y]);
+  shape(side > 0 ? "#293b57" : "#202e47", [a.x, a.y], [c.x, c.y], [c.x, backTop.y], [a.x, top.y]);
+  shape("#425574", [a.x, top.y], [b.x, top.y], [b.x - (a.x - c.x) * .18, top.y - a.scale * .36], [a.x, top.y - a.scale * .36]);
   const windows = Math.floor(tall / 2.35);
   for (let row = 1; row < windows; row++) {
     for (let col = 1; col <= 3; col++) {
       const lit = seed(row * 29 + col * 17 + index * 67 + side) > .37;
-      ctx.fillStyle = lit ? (col === 2 ? "#b9669c" : "#549db8") : "#372c49";
-      if (lit && col === 2 && index % 4 === 0) ctx.fillStyle = "#ffae79";
+      ctx.fillStyle = lit ? (col === 2 ? "#e187a5" : "#68b3d0") : "#394764";
+      if (lit && col === 2 && index % 3 === 0) ctx.fillStyle = "#ffae79";
       const x = a.x + (b.x - a.x) * col / 4;
       const y = a.y - row * 2.35 * a.scale;
       ctx.fillRect(x - a.scale * .24, y, a.scale * .54, a.scale * .22);
@@ -156,6 +164,19 @@ function drawLamp(distance, side) {
   light.addColorStop(1, "#88598600");
   ctx.fillStyle = light;
   ctx.fillRect(head.x - foot.scale, head.y - foot.scale, foot.scale * 2, foot.scale * 2);
+
+  const reflection = project(distance, offset - side * 1.55);
+  const reach = Math.min(42, reflection.scale * 1.8);
+  const sheen = ctx.createLinearGradient(0, reflection.y - 2, 0, reflection.y + reach);
+  sheen.addColorStop(0, side > 0 ? "#f79e747a" : "#69dff369");
+  sheen.addColorStop(1, "#78c9f300");
+  ctx.fillStyle = sheen;
+  ctx.beginPath();
+  ctx.moveTo(reflection.x - foot.scale * .12, reflection.y - 2);
+  ctx.lineTo(reflection.x + foot.scale * .12, reflection.y - 2);
+  ctx.lineTo(reflection.x + foot.scale * .36, reflection.y + reach);
+  ctx.lineTo(reflection.x - foot.scale * .36, reflection.y + reach);
+  ctx.fill();
 }
 
 function drawGate(distance, label, color) {
@@ -171,14 +192,14 @@ function drawGate(distance, label, color) {
   ctx.fillRect(left.x, top, bar, heightAtGate);
   ctx.fillRect(right.x, top, bar, heightAtGate);
   ctx.fillRect(left.x, top, right.x - left.x, bar);
-  ctx.fillStyle = "#21152f";
-  ctx.fillRect(left.x + bar, top + bar, right.x - left.x - 2 * bar, left.scale * 1.06);
-  const fontSize = clamp(left.scale * .73, 5, 40);
+  ctx.fillStyle = "#0d1933";
+  ctx.fillRect(left.x + bar, top + bar, right.x - left.x - 2 * bar, left.scale * 1.34);
+  const fontSize = clamp(left.scale * .83, 6, 44);
   ctx.font = "750 " + fontSize + "px monospace";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = color;
-  ctx.fillText(label, (left.x + right.x) / 2, top + bar + left.scale * .52, right.x - left.x - 4 * bar);
+  ctx.fillText(label, (left.x + right.x) / 2, top + bar + left.scale * .66, right.x - left.x - 4 * bar);
 }
 
 function drawSpark(distance, offset) {
@@ -230,6 +251,14 @@ function drawCar() {
   ctx.rotate(lean);
   ctx.scale(scale, scale);
 
+  const trail = ctx.createLinearGradient(0, 0, 0, 1.3);
+  trail.addColorStop(0, "#ff685950");
+  trail.addColorStop(1, "#ff685900");
+  ctx.fillStyle = trail;
+  ctx.beginPath();
+  ctx.ellipse(-1.06, .54, .42, .66, -.11, 0, Math.PI * 2);
+  ctx.ellipse(1.06, .54, .42, .66, .11, 0, Math.PI * 2);
+  ctx.fill();
   ctx.fillStyle = "#090819a8";
   ctx.beginPath();
   ctx.ellipse(0, .24, 2.25, .37, 0, 0, Math.PI * 2);
@@ -242,6 +271,8 @@ function drawCar() {
   shape("#db7181", [-1.15, -1.9], [-.81, -2.17], [.81, -2.17], [1.15, -1.9]);
   shape("#293b5b", [-1.09, -1.86], [1.09, -1.86], [1.27, -1.38], [-1.27, -1.38]);
   shape("#567291", [-.95, -1.82], [.6, -1.82], [.83, -1.69], [-1.02, -1.69]);
+  shape("#a2c9de", [-.83, -1.81], [.61, -1.81], [.72, -1.74], [-.87, -1.74]);
+  shape("#f28e8b", [-1.51, -.83], [-1.26, -1.22], [1.26, -1.22], [1.51, -.83]);
   shape("#30243f", [-1.76, -.75], [1.76, -.75], [1.7, -.08], [-1.7, -.08]);
   ctx.fillStyle = "#f28383";
   ctx.fillRect(-1.57, -.62, 3.14, .075);
@@ -251,6 +282,9 @@ function drawCar() {
   ctx.fillRect(-1.53, -.57, .97, .2);
   ctx.fillRect(.56, -.57, .97, .2);
   ctx.shadowBlur = 0;
+  ctx.fillStyle = "#ffe3c7";
+  ctx.fillRect(-1.45, -.52, .15, .09);
+  ctx.fillRect(1.30, -.52, .15, .09);
   ctx.fillStyle = "#ffe7ad";
   ctx.fillRect(-.33, -.46, .66, .19);
   ctx.fillStyle = "#905b77";
@@ -285,9 +319,12 @@ function showArrival(checkpoint) {
   $("arrival").style.setProperty("border-left-color", checkpoint.color);
   $("arrival-kicker").textContent = checkpoint.label;
   $("arrival-title").textContent = checkpoint.title;
+  $("arrival-result").textContent = checkpoint.result ?? "";
+  $("arrival-result").hidden = !checkpoint.result;
   $("arrival-detail").textContent = checkpoint.detail;
   $("arrival-link").href = "#" + checkpoint.anchor;
   $("arrival-link").textContent = checkpoint.link ?? "See the project";
+  $("pause-drive").hidden = state === "finished";
   $("arrival").hidden = false;
 }
 
@@ -314,7 +351,7 @@ function update(elapsed) {
   const targetCameraX = path(position + 12) + lane * .6;
   cameraX += (targetCameraX - cameraX) * Math.min(1, elapsed * 6);
 
-  if (state !== "active") return;
+  if (state !== "active" || paused) return;
   const before = position + carDistance;
   const direction = Number(input.has("right")) - Number(input.has("left"));
   const braking = input.has("brake");
@@ -342,17 +379,20 @@ function update(elapsed) {
     routeMarkers[crossed].classList.add("passed");
     crossed++;
     $("route-text").textContent = crossed + " / " + checkpoints.length + " checkpoints";
+    $("hud-next").textContent = crossed < checkpoints.length ? "NEXT / " + checkpoints[crossed].label : "NEXT / FINISH";
   }
 
   if (after >= routeEnd) {
     speed = 0;
     setState("finished");
+    $("hud-next").textContent = "ROUTE COMPLETE";
     setCruise(false);
     clearInput();
     showArrival({
       label: "ROUTE COMPLETE",
       title: "End of the night shift.",
-      detail: "You passed all four checkpoints and picked up " + collected.size + " of " + sparks.length + " sparks.",
+      result: "All four checkpoints visited",
+      detail: "You picked up " + collected.size + " of " + sparks.length + " sparks. Browse the full projects or take another drive.",
       anchor: "work",
       link: "Explore the projects",
       color: "#79e2ec"
@@ -366,8 +406,10 @@ function frame(now) {
   const elapsed = lastFrame === undefined ? 0 : Math.min((now - lastFrame) / 1000, .2);
   clock = reducedMotion.matches ? 0 : now / 1000;
   lastFrame = now;
-  update(elapsed);
-  draw();
+  if (routeVisible) {
+    update(elapsed);
+    draw();
+  }
   requestAnimationFrame(frame);
 }
 
@@ -382,9 +424,17 @@ function setCruise(enabled) {
   $("cruise").setAttribute("aria-pressed", String(enabled));
 }
 
+function setPaused(value) {
+  paused = value;
+  $("pause-drive").textContent = value ? "Resume drive" : "Pause to read";
+  $("cruise").disabled = value || state === "finished";
+  $("speed").classList.toggle("speed-paused", value);
+  releaseKeys();
+}
+
 function start() {
-  clearInput();
-  setCruise(false);
+  setPaused(false);
+  setCruise(true);
   position = 0;
   speed = 0;
   lane = 0;
@@ -395,6 +445,7 @@ function start() {
   $("arrival").hidden = true;
   $("route-text").textContent = "0 / " + checkpoints.length + " checkpoints";
   $("spark-count").textContent = "0/" + sparks.length + " sparks";
+  $("hud-next").textContent = "NEXT / " + checkpoints[0].label;
   setState("active");
   updateHud();
   drive.focus({ preventScroll: true });
@@ -426,7 +477,12 @@ function routeInView() {
 if (ctx) {
   resize();
   new ResizeObserver(resize).observe(drive);
+  new IntersectionObserver(([entry]) => {
+    routeVisible = entry.isIntersecting;
+    if (!routeVisible) releaseKeys();
+  }).observe(drive);
   $("start").addEventListener("click", start);
+  $("pause-drive").addEventListener("click", () => setPaused(!paused));
   $("cruise").addEventListener("click", () => {
     if (state === "active") setCruise(!cruise);
   });
@@ -447,7 +503,7 @@ if (ctx) {
       start();
       return;
     }
-    if (state !== "active" || !keys[event.code] || (event.code === "Space" && event.target instanceof HTMLButtonElement)) return;
+    if (state !== "active" || paused || !keys[event.code] || (event.code === "Space" && event.target instanceof HTMLButtonElement)) return;
     event.preventDefault();
     heldKeys.add(event.code);
     resolveInput();
@@ -461,7 +517,7 @@ if (ctx) {
   });
   document.querySelectorAll(".touch button").forEach(button => {
     button.addEventListener("pointerdown", event => {
-      if (state !== "active") return;
+      if (state !== "active" || paused) return;
       event.preventDefault();
       button.setPointerCapture(event.pointerId);
       pointers.set(event.pointerId, { control: button.dataset.drive, button });
