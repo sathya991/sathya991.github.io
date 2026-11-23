@@ -19,7 +19,13 @@
   let bus;
   let noise;
   let engine;
+  const soundPreferenceKey = "night-shift:sound";
   let wanted = true;
+  try {
+    wanted = localStorage.getItem(soundPreferenceKey) !== "off";
+  } catch {
+    // Sound remains enabled by default if the browser blocks local storage.
+  }
   let playing = false;
   let wasUnlocked = false;
   let driveSound = { running: false };
@@ -210,7 +216,12 @@
 
   button.hidden = false;
   button.addEventListener("click", () => {
-    if (playing || !wanted) wanted = !playing;
+    wanted = !playing;
+    try {
+      localStorage.setItem(soundPreferenceKey, wanted ? "on" : "off");
+    } catch {
+      // The current tab can still change its sound.
+    }
     if (wanted) unlock();
     else synchronize();
   });
@@ -229,5 +240,6 @@
     driveSound = event.detail;
     if (playing) updateEngine();
   });
+  synchronize();
   unlock();
 })();

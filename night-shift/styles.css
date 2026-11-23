@@ -109,7 +109,6 @@ dialog::backdrop {background:#100b1ccd}
   .intro h1 {font-size:clamp(5rem,17.8vw,7rem)}
   .projects {grid-template-columns:1fr}
   .hud {top:4.2rem;right:1rem;width:13rem;padding:.44rem .57rem}
-  .hud-heading small {display:none}
   .hud-heading b {font-size:.77rem}
   .arrival {top:9.45rem;max-width:none;width:min(19rem,calc(100% - 2rem));padding:.63rem .72rem}
   .arrival p:not(.eyebrow) {font-size:.86rem}
@@ -363,4 +362,35 @@ kbd {background:#192741;border-color:#536b8d}
 .junction-center i {border:1px solid #537193;border-radius:.15rem;background:#1c2d47}
 @media(max-width:48rem) {
   .junction {top:9.8rem;padding:.76rem .83rem .83rem}
+}
+
+#jump-to-junction {padding-block:.38rem;min-height:2.65rem;text-align:left}
+.hud {width:min(24rem,calc(100% - 2rem))}
+.hud-heading > span {min-width:0}
+.hud-heading small {color:#d0e3f7;white-space:normal}
+.hud-actions {flex-shrink:0}
+.hud .route-line {background:#293954}
+.hud .route-line > div {background:var(--cyan)}
+.junction-map button .route-visited {margin-top:.22rem;color:var(--district);font-size:.65rem}
+.touch button.touch-boost {font-size:.8rem;padding-inline:.42rem}
+#arrival-title:focus,#junction-title:focus {outline:none}
+@media (pointer:coarse),(max-width:45rem) {
+  .drive:not([data-state=intro]) {min-height:0}
+}
+@media(max-width:44rem) {
+  .hud {top:4.35rem;padding:.5rem .6rem;width:min(24rem,calc(100% - 2rem))}
+  .hud button {min-height:2.75rem;padding-inline:.46rem}
+  .junction,.arrival {top:10.45rem}
+  .arrival-actions button {min-height:2.75rem}
+}
+@media(max-width:39rem) {
+  .intro-actions {gap:.45rem .65rem}
+  #jump-to-junction {font-size:.84rem}
+}
+@media(max-height:36rem) and (max-width:48rem) {
+  .junction,.arrival {max-height:calc(100% - 11.2rem);overflow:auto}
+}
+@media(max-height:32rem) and (min-width:39rem) {
+  .hud {top:4.65rem}
+  .junction,.arrival {top:4.85rem;max-height:calc(100% - 5.7rem);overflow:auto;width:min(23rem,43vw)}
 }
