@@ -460,8 +460,8 @@ export function createRoadRenderer({canvas, context, seed, trackWidth, routes, j
         const distance = at - junctionAt;
         return [x * cosine - distance * sine, y, -junctionAt - distance * cosine - x * sine];
       };
-      camera.position.set(...world(cameraX, width < 650 ? 5.8 : 5.7, position - 1));
-      camera.lookAt(...world(cameraX * .62, 4.15, position + 38));
+      camera.position.set(...world(cameraX, width < 650 ? 5.5 : 5.4, position - 3.3));
+      camera.lookAt(...world(cameraX * .62, 2.45, position + 38));
       rig.position.set(...world(lane, .01, position + carDistance));
       rig.rotation.y = yaw - steer * .23;
       car.rotation.z = -steer * .075;

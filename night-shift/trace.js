@@ -603,7 +603,7 @@ async function loadRoadRenderer() {
     delete drive.dataset.renderer;
   });
   try {
-    const { createRoadRenderer } = await import("./scene-3d.js?v=2");
+    const { createRoadRenderer } = await import("./scene-3d.js?v=3");
     if (context.isContextLost()) return;
     const renderer = createRoadRenderer({
       canvas: surface, context, seed, trackWidth, routes, junctionAt, carDistance, sparks
