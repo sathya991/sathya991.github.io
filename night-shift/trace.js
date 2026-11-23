@@ -393,7 +393,7 @@ function update(elapsed) {
       title: "End of the night shift.",
       result: "All four checkpoints visited",
       detail: "You picked up " + collected.size + " of " + sparks.length + " sparks. Browse the full projects or take another drive.",
-      anchor: "work",
+      anchor: "projects",
       link: "Explore the projects",
       color: "#79e2ec"
     });

@@ -8,14 +8,14 @@
   <meta name="description" content="Drive a short night route through the engineering portfolio of Satya Srivatsav, a .NET and Angular engineer in Hyderabad.">
   <title>Night Shift · Satya Srivatsav</title>
   <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=2">
-  <script src="trace.js?v=2" defer></script>
+  <link rel="stylesheet" href="styles.css?v=3">
+  <script src="trace.js?v=3" defer></script>
 </head>
 <body>
   <a class="skip" href="#work">Skip to engineering work</a>
   <header class="top">
     <a class="brand" href="#drive"><span class="brand-mark" aria-hidden="true"></span>Satya Srivatsav</a>
-    <nav aria-label="Main navigation"><a href="#drive">Drive</a><a href="#work">Work</a><a href="#contact">Contact</a></nav>
+    <nav aria-label="Main navigation"><a href="#drive">Drive</a><a href="#work">Work</a><a href="#projects">Projects</a><a href="#contact">Contact</a></nav>
     <a class="button resume" href="assets/Satya_Srivatsav_Resume.pdf" target="_blank" rel="noopener">Résumé</a>
   </header>
 
@@ -33,7 +33,7 @@
           <div><dt>&gt;80%</dt><dd>less time spent uploading</dd></div>
           <div><dt>~30%</dt><dd>lower database CPU at peak</dd></div>
         </dl>
-        <div class="intro-actions"><button id="start" class="button primary" type="button">Drive the portfolio</button><a href="#work" class="button hero-secondary">View projects</a></div>
+        <div class="intro-actions"><button id="start" class="button primary" type="button">Drive the portfolio</button><a href="#projects" class="button hero-secondary">View projects</a></div>
         <p class="accent">Drive through four project stops. Use your keyboard or onscreen controls.</p>
       </div>
       <div class="road-legend" aria-label="The four stops on the drive">
@@ -66,8 +66,8 @@
     </section>
 
     <section class="work shell" id="work" aria-labelledby="work-title">
-      <div class="section-head"><div><p class="eyebrow">WORK &amp; PROJECTS</p><h2 id="work-title">What I’ve built.</h2></div><p>Three examples from Worksoft and an independent AI prototype. Each is a stop on the drive.</p></div>
-      <div class="projects">
+      <div class="section-head"><div><p class="eyebrow">PROFESSIONAL WORK</p><h2 id="work-title">Engineering at Worksoft.</h2></div><p>Three examples of making business software faster and more dependable.</p></div>
+      <div class="projects work-grid">
         <article id="performance" class="project" data-stop="performance">
           <p class="project-stop"><span>01</span> PERFORMANCE</p>
           <h3>Responsive grids at scale</h3>
@@ -89,13 +89,38 @@
           <p class="stat">~30% <small>lower database CPU at peak load</small></p>
           <p>I upgraded .NET 6 to .NET 8, replaced hot EF paths with tuned stored procedures, and batched parameterized database calls. Peak p95 latency improved by about 20%.</p>
         </article>
-        <article id="evidence" class="project" data-stop="evidence">
+      </div>
+    </section>
+
+    <section class="shell repo-section" id="projects" aria-labelledby="repo-title">
+      <div class="section-head">
+        <div><p class="eyebrow">GITHUB PROJECTS</p><h2 id="repo-title">Tools I’ve built.</h2></div>
+      </div>
+      <div class="projects repo-grid">
+        <article id="evidence" class="project repo-card" data-stop="evidence">
           <p class="project-stop"><span>04</span> TRACEABILITY</p>
           <h3>CaseBrief AI</h3>
-          <p class="project-meta">Independent project · Applied AI</p>
-          <p class="stat">Source-linked findings</p>
-          <p>I built a prototype for reviewing immigration evidence. It lets a reviewer connect a finding to a document and spot where the evidence falls short.</p>
-          <button type="button" class="plain-link" id="sample-open">Try a fictional packet</button>
+          <p class="project-meta">Python · FastAPI · PyMuPDF · Ollama</p>
+          <p class="stat">Review findings at the source</p>
+          <p>A local PDF review prototype that flags conflicting employment dates and missing award criteria. It checks model-proposed quotes against the original page and lets a reviewer record decisions before printing a report.</p>
+          <div class="repo-actions">
+            <a class="button" href="https://github.com/sathya991/CaseBrief-AI" aria-label="View CaseBrief AI on GitHub">View on GitHub</a>
+            <button type="button" class="plain-link" id="sample-open">Try a fictional packet</button>
+          </div>
+        </article>
+        <article id="aftermatch" class="project repo-card" data-stop="reliability">
+          <h3>AfterMatch</h3>
+          <p class="project-meta">JavaScript · Node.js · OpenDota API</p>
+          <p class="stat">Turn a replay into a practice plan</p>
+          <p>Review a Dota 2 match through its timeline, charts, and event log. Rule-based coaching links suggestions to recorded events. When a replay is unavailable, the app shows the final stats it has.</p>
+          <div class="repo-actions"><a class="button" href="https://github.com/sathya991/AfterMatch" aria-label="View AfterMatch on GitHub">View on GitHub</a></div>
+        </article>
+        <article id="my-time" class="project repo-card" data-stop="ownership">
+          <h3>My Time</h3>
+          <p class="project-meta">Flutter · Dart · Firebase Auth · Firestore</p>
+          <p class="stat">A timetable for your day</p>
+          <p>An earlier Android prototype that uses Firebase sign-in, stores each person’s timetables and tasks in Firestore, and shows the current task from their active timetable.</p>
+          <div class="repo-actions"><a class="button" href="https://github.com/sathya991/My-Time" aria-label="View My Time on GitHub">View on GitHub</a></div>
         </article>
       </div>
     </section>

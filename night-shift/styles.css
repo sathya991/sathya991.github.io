@@ -279,3 +279,20 @@ kbd {background:#192741;border-color:#536b8d}
 .arrival-actions button {min-height:2rem;padding:.3rem .51rem;background:#192944;border-color:#60759c;font-size:.81rem}
 .arrival-actions button:hover {background:#27395a}
 #speed.speed-paused {opacity:.52}
+
+.repo-section {padding-block:0 clamp(2.8rem,6.5vw,6rem)}
+.repo-card {display:flex;flex-direction:column}
+.repo-card h3 {font-size:clamp(1.6rem,2.8vw,2.1rem)}
+.repo-card .stat {font-size:1.12rem;letter-spacing:-.015em;line-height:1.28}
+.repo-card .project-stop {margin-bottom:.25rem}
+.repo-actions {display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .8rem;margin-top:auto;padding-top:1.2rem}
+.repo-actions button {margin-top:0}
+.repo-actions .button {background:#172741;border-color:#617897}
+.repo-actions .button:hover {background:#233856;border-color:var(--cyan)}
+@media(min-width:58rem) {
+  .work-grid,.repo-grid {grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:24rem) {
+  .top nav {gap:.4rem}
+  .top nav a:first-child {display:none}
+}
